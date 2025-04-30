@@ -41,7 +41,10 @@ jobs:
       - when:
           condition: << pipeline.git.tag >>
           steps:
-            - run: echo "This ran!"
+            - run: echo "export FOO=${CIRCLE_SHA1}" >> $BASH_ENV
+      - run: |
+          # verify; optional step
+          echo ${FOO}
 
 
 workflows:
