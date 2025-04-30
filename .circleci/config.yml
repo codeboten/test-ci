@@ -39,7 +39,7 @@ jobs:
     steps:
       - checkout
       - when:
-          condition: pipeline.git.tag
+          condition: << pipeline.git.tag >>
           steps:
             - run: echo "This ran!"
 
