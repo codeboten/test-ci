@@ -1,0 +1,87 @@
+version: 2.1 # Use version 2.1 to enable Orb usage.
+
+parameters:
+  skipUnitTests:
+    description: if set to true will not build the c++ unit tests
+    type: boolean
+    default: true
+  skipSystemTests:
+    description: if set to true will not build the c++ system tests
+    type: boolean
+    default: true
+  updateTranslation:
+    description: if set to true will update the translation files
+    type: boolean
+    default: true
+
+
+jobs:
+  build_cpp_unit_tests:
+    docker:
+      - image: cimg/base:edge
+    steps:
+      - checkout
+      - run: echo "This was triggered by << pipeline.trigger_source >>"
+  artifacts_build_only_job:
+    docker:
+      - image: cimg/base:edge
+    steps:
+      - checkout
+      - run: echo "This was triggered by << pipeline.trigger_source >>"
+  system_tests_job:
+    docker:
+      - image: cimg/base:edge
+    steps:
+      - checkout
+      - run: echo "This was triggered by << pipeline.trigger_source >>"
+  updateTranslation_job:
+    docker:
+      - image: cimg/base:edge
+    steps:
+      - checkout
+      - run: echo "This was triggered by << pipeline.trigger_source >>"
+
+
+workflows:
+  unit_tests_workflow: 
+    when: # All must be true to trigger
+      and:
+        - equal: [ false, <<pipeline.parameters.skipUnitTests>> ]
+        - equal: [ true, <<pipeline.parameters.skipSystemTests>> ]
+        - equal: [ false, <<pipeline.parameters.updateTranslation>> ]
+    jobs:
+    - build_cpp_unit_tests
+  artifacts_build_only_workflow: 
+    when: # All must be true to trigger
+      and:
+        - equal: [ true, <<pipeline.parameters.skipUnitTests>> ]
+        - equal: [ true, <<pipeline.parameters.skipSystemTests>> ]
+        - equal: [ false, <<pipeline.parameters.updateTranslation>> ]
+    jobs:
+    - artefacts_build_only_job
+  artefacts_build_and_unittest:
+    when: # All must be true to trigger
+      and:
+        - equal: [ false, <<pipeline.parameters.skipUnitTests>> ]
+        - equal: [ true, <<pipeline.parameters.skipSystemTests>> ]
+        - equal: [ false, <<pipeline.parameters.updateTranslation>> ]
+    jobs:
+    - build_cpp_unit_tests
+    - artefacts_build_only_job
+  artefacts_build_and_systemtest:
+    when:  # All must be true to trigger
+      and:
+        - equal: [ true, <<pipeline.parameters.skipUnitTests>> ]
+        - equal: [ false, <<pipeline.parameters.skipSystemTests>> ]
+        - equal: [ false, <<pipeline.parameters.updateTranslation>> ]
+    jobs:
+    - artefacts_build_only_job
+    - system_tests_job
+  updateTranslation_workflow:
+    when: # All must be true to trigger
+      and:
+        - equal: [ true, <<pipeline.parameters.skipUnitTests>> ]
+        - equal: [ true, <<pipeline.parameters.skipSystemTests>> ]
+        - equal: [ true, <<pipeline.parameters.updateTranslation>> ]
+    jobs:
+    - updateTranslation_job
