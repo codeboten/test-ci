@@ -47,4 +47,7 @@ jobs:
 workflows:
   updateTranslation_workflow:
     jobs:
-    - updateTranslation_job
+    - updateTranslation_job:
+        filters:
+          tags:
+            only: /^v.*/
