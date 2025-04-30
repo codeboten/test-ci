@@ -14,7 +14,6 @@ parameters:
     type: boolean
     default: true
 
-
 jobs:
   build_cpp_unit_tests:
     docker:
@@ -39,49 +38,13 @@ jobs:
       - image: cimg/base:edge
     steps:
       - checkout
-      - run: echo "This was triggered by << pipeline.trigger_source >>"
+      - when:
+          condition: pipeline.git.tag
+          steps:
+            - run: echo "This ran!"
 
 
 workflows:
-  unit_tests_workflow: 
-    when: # All must be true to trigger
-      and:
-        - equal: [ false, <<pipeline.parameters.skipUnitTests>> ]
-        - equal: [ true, <<pipeline.parameters.skipSystemTests>> ]
-        - equal: [ false, <<pipeline.parameters.updateTranslation>> ]
-    jobs:
-    - build_cpp_unit_tests
-  artifacts_build_only_workflow: 
-    when: # All must be true to trigger
-      and:
-        - equal: [ true, <<pipeline.parameters.skipUnitTests>> ]
-        - equal: [ true, <<pipeline.parameters.skipSystemTests>> ]
-        - equal: [ false, <<pipeline.parameters.updateTranslation>> ]
-    jobs:
-    - artefacts_build_only_job
-  artefacts_build_and_unittest:
-    when: # All must be true to trigger
-      and:
-        - equal: [ false, <<pipeline.parameters.skipUnitTests>> ]
-        - equal: [ true, <<pipeline.parameters.skipSystemTests>> ]
-        - equal: [ false, <<pipeline.parameters.updateTranslation>> ]
-    jobs:
-    - build_cpp_unit_tests
-    - artefacts_build_only_job
-  artefacts_build_and_systemtest:
-    when:  # All must be true to trigger
-      and:
-        - equal: [ true, <<pipeline.parameters.skipUnitTests>> ]
-        - equal: [ false, <<pipeline.parameters.skipSystemTests>> ]
-        - equal: [ false, <<pipeline.parameters.updateTranslation>> ]
-    jobs:
-    - artefacts_build_only_job
-    - system_tests_job
   updateTranslation_workflow:
-    when: # All must be true to trigger
-      and:
-        - equal: [ true, <<pipeline.parameters.skipUnitTests>> ]
-        - equal: [ true, <<pipeline.parameters.skipSystemTests>> ]
-        - equal: [ true, <<pipeline.parameters.updateTranslation>> ]
     jobs:
     - updateTranslation_job
